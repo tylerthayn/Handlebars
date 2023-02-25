@@ -1,0 +1,4 @@
+	Handlebars.constructor.prototype.templates = {
+		"JSON": "\r\n\t{{JSON .}}\r\n\t\t\tok\r\n\t{{JSON}}\r\n"
+	}
+

@@ -1,0 +1,3 @@
+	Handlebars.registerPartial('JSON', `{{JSON .}}`)
+
+	Handlebars.registerPartial('Name', `{{name}}`)

@@ -1,0 +1,27 @@
+{
+  "name": "@tyler.thayn/handlebars",
+  "version": "0.1.0",
+  "description": "Handlebars with pre-load helpers, partials and templates",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tylerthayn/Handlebars.git"
+  },
+  "keywords": [
+    "handlebars",
+    "render",
+    "template"
+  ],
+  "author": "Tyler Thayn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tylerthayn/Handlebars/issues"
+  },
+  "homepage": "https://github.com/tylerthayn/Handlebars#readme",
+  "dependencies": {
+    "handlebars": "^4.7.7"
+  }
+}
