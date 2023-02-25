@@ -1,14 +1,24 @@
 (function (factory) {
 	if (typeof define === 'function' && define.amd) {
-		define(['handlebars', '@js/core'], factory)
+		define(['handlebars', 'just-handlebars-helpers', '@js/core'], factory)
 	} else if (typeof module === 'object' && module.exports) {
-		module.exports = factory(require('handlebars'), require('@tyler.thayn/js.core'))
+		module.exports = factory(require('handlebars'), require('just-handlebars-helpers'), require('@tyler.thayn/js.core'))
 	} else {
 		factory(handlebars)
 	}
-}(function (Handlebars) {
+}(function (Handlebars, H) {
+	H.registerHelpers(Handlebars)
+	function Create (helpers = {}, partials = {}) {
+		let $ = Handlebars.create()
+		Extend({}, this.helpers, helpers).Each((v, k) => $.registerHelper(k, v))
+		Extend({}, this.partials, partials).Each((v, k) => $.registerPartial(k, v))
+		Define($, 'Create', Create)
+		return $
+	}
+	
+	Define(Handlebars, 'Create', Create)
 
-		/** CamelCase
+	/** CamelCase
 	 * @helper CamelCase
 	 * @param {string} text - Text to transform
 	 * @param {boolean} upper - UpperCamelCase if true, lowerCamelCase if false
@@ -17,7 +27,7 @@
 	Handlebars.registerHelper('CamelCase', function (txt, upper = false) {
 		return txt.CamelCase(upper)
 	 })
-
+	
 	/** Compare
 	 * @helper Compare
 	 * @param {*} a
@@ -27,7 +37,7 @@
 	Handlebars.registerHelper('Compare', function (a, b) {
 		return a === b
 	 })
-
+	
 	/** Join
 	 * @helper Join
 	 * @param {array} context
@@ -37,7 +47,7 @@
 	Handlebars.registerHelper('Join', function (names, s) {
 		return names.join(s)
 	 })
-
+	
 	/** JSON
 	 * @helper JSON
 	 * @param {object} context
@@ -48,70 +58,39 @@
 		return new Handlebars.SafeString(pretty ? JSON.stringify(ctx, null, '\t') : JSON.stringify(ctx))
 	 })
 
-		Handlebars.registerPartial('JSON', `{{JSON .}}`)
+	Handlebars.registerPartial('JSON', "{{JSON .}}")
+	Handlebars.registerPartial('Name', "{{name}}")
 
-	Handlebars.registerPartial('Name', `{{name}}`)
-
-		let Templates = {
-		"JSON": "{{> JSON}}"
-	}
-
-
-
-	let defaults = {
-		templates: {},
-		styles: {
-			std: {
-				data: {},
-				helpers: {},
-				partials: {}
-			}
-		}
-	}
-
-	function Renderer (templates = {}, styles = {}) {
-
-		let R = Extend({}, defaults) //, {templates: templates, styles: styles})
-		Extend(R.styles, styles)
-		templates.Each((v, k) => {
-			R.templates[k] = Handlebars.compile(v)
-		})
-
-		//Handlebars.registerPartial('JSON', '')
-		//Handlebars.registerPartial('Name', '')
-		//Handlebars.registerPartial('Loud.Title', '')
-
-
-
+	function Renderer (...args) {
+		let $H = Type(args.first, 'HandlebarsEnvironment') ? args.shift(): Handlebars
+		ctx = Extend({}, {helpers: {}, partials: {}, templates: {}}, args.first || {})
+	
+		let $ = Handlebars.Create.call($H, ctx.helpers, ctx.partials)
+		let $templates = Extend({}, ctx.templates)
+	
 		let Render = function (name = '', context = {}, options = {}) {
-			[style, name] = name.includes('.') ? name.split('.') : ['std', name]
-			options = Extend({}, R.styles[style], options)
 			let template = null
-			if (R.templates.Has(`${style}.${name}`)) {
-				template = R.templates.Get(`${style}.${name}`)
-			} else if (R.templates.Has(name)) {
-				template = R.templates.Get(name)
-			} else if (options.Has(`partials.${name}`) || Handlebars.Has(`partials.${name}`)) {
-				template = Handlebars.compile(`{{>${name}}}`)
-			} else if (options.Has(`partials.${name}`) || Handlebars.Has(`partials.${name}`)) {
-				template = Handlebars.compile(`{{>${name}}}`)
+			if (Reflect.has($templates, name)) {
+				if (typeof $templates[name] === 'string') {
+					$templates[name] = $.compile($templates[name])
+				}
+				return $templates[name](context, options)
+			} else if (Reflect.has($.partials, name)) {
+				return $.compile(`{{> ${name}}}`)(context, options)
 			} else {
-				throw new Error('No template available')
+				return $.compile(name)(context, options)
 			}
-
-			return template(context, options)
+			throw new Error('No template available')
 		}
-
-		Render.templates = R.templates
-		Render.styles = R.styles
-
+	
+		Render.$ = $
+		Render.$templates = $templates
+	
 		return Render
-
 	}
 
-	return Renderer
+	Handlebars.Renderer = Renderer
+
+	return Handlebars
 
 }))
-
-
-

@@ -22,6 +22,9 @@
   },
   "homepage": "https://github.com/tylerthayn/Handlebars#readme",
   "dependencies": {
-    "handlebars": "^4.7.7"
+    "clayhandlebars": "^5.0.2",
+    "handlebars": "^4.7.7",
+    "handlebars-helpers": "^0.10.0",
+    "just-handlebars-helpers": "^1.0.19"
   }
 }
